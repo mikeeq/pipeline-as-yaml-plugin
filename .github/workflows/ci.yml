@@ -1,0 +1,24 @@
+---
+name: Build Plugin
+
+# yamllint disable-line rule:truthy
+on: [push]
+
+jobs:
+  build-gnome:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: "Build in Docker"
+        run: ./build.sh
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          tag_name: ${{ github.ref }}
+          name: Release gnome ${{ github.ref }}
+          draft: true
+          files: |
+            ./target/pipeline-as-yaml.*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # You don't need to add this in secrets it's by default.
